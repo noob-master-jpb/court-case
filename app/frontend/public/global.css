@@ -1,0 +1,193 @@
+/* 
+ html, body {
+	position: relative;
+	width: 100%;
+	height: 100%;
+} */
+
+body {
+	color: #333;
+	margin: 0;
+	padding: 0px;
+	box-sizing: border-box;
+	font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+} 
+
+*{
+    padding: 0;
+    margin:0;
+}
+
+/* Universal */
+
+body{
+    font-family:system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    position: fixed;
+    /* background-color: blueviolet; */
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+}
+
+header{
+    /* flex: .05; */
+    background-color:deepskyblue;
+    display: flex;
+    height: auto;
+    /* width: 100px; */
+}
+.logo{
+    font-size: 20px;
+    /* margin: 10px; */
+    min-width: 100px;
+    width: 10%;
+    text-align: center;
+    padding: 10px 0;
+    border-right: solid 2px;
+    background-color:deepskyblue;
+
+}
+
+.win{
+    width: 80%;
+    /* background-color: white; */
+    text-align: center;
+    padding: 10px 0;
+    font-size: 20px;
+}
+
+.profile{
+    width: 10%;
+    background-color: grey;
+
+
+}
+
+
+                                                                /* navigatiom bar */
+
+
+
+.nav {
+    border-right: solid 2px;
+
+    /* margin: 5px; */
+    display: flex;
+    flex-direction: column;
+    width: 10%;
+    background-color: deepskyblue;
+    min-width: 100px;
+    /* background-color: rgb(219, 219, 219); */
+    /* align-items: center; */
+    /* width:80%; */
+    /* background-color: azure; */
+    /* justify-content: center; */
+
+}
+
+.nav div{
+    background-color: rgb(214, 214, 214);
+    padding: 5px 0px;
+    border: solid;
+    border-radius: 8px;
+    margin: 5px;
+    text-align: center;
+    text-decoration: none;
+}
+.nav a{
+    text-decoration: none;
+}
+.nav div span{
+    
+    padding: 10px 0;
+}
+
+
+
+main{
+    
+    display: flex;
+    /* flex: 5; */
+    /* background-color: bisque; */
+    width: 100%;
+    height: 100%;
+    /* border: solid; */
+}
+
+
+#content{
+    background-color: rgb(217, 217, 217);
+    /* background-color: #333; */
+    width: 90%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    /* right: 0; */
+    /* border-radius: 15px; */
+    /* position: relative; */
+    /* margin: 10px; */
+
+}
+
+
+
+
+#search{
+    background-color:rgb(235,235,235);
+    margin: 5px;
+    height: 5%;
+    width: calc(100% - 10px);
+    border-radius: 5px;
+}
+
+
+a {
+	color: rgb(0,100,200);
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+a:visited {
+	color: rgb(0,80,160);
+}
+
+label {
+	display: block;
+}
+
+input, button, select, textarea {
+	font-family: inherit;
+	font-size: inherit;
+	-webkit-padding: 0.4em 0;
+	padding: 0.4em;
+	margin: 0 0 0.5em 0;
+	box-sizing: border-box;
+	border: 1px solid #ccc;
+	border-radius: 2px;
+}
+
+input:disabled {
+	color: #ccc;
+}
+
+button {
+	color: #333;
+	background-color: #f4f4f4;
+	outline: none;
+}
+
+button:disabled {
+	color: #999;
+}
+
+button:not(:disabled):active {
+	background-color: #ddd;
+}
+
+button:focus {
+	border-color: #666;
+}
