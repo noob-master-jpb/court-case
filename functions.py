@@ -2,7 +2,6 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 import time
 from bs4 import BeautifulSoup
-import re
 from selenium.webdriver.firefox.options import Options
 
 
@@ -125,7 +124,7 @@ def order_extractor(user_case_type, user_case_number, user_case_year):
     data["petitioner"] = col2.text.split("VS.")[0].strip()
     data["respondent"] = col2.text.split("VS.")[1].strip()
 
-    
+
     col3 = str(column_data[2])
     next_date = col3.split("<br/>")[0].strip("</td> \t \n").split(":")
     if next_date[1].strip() == "NA":
