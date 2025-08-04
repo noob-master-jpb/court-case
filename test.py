@@ -55,7 +55,6 @@ def submit_case_search(case_type: str, case_number: str, year: str):
         print(f"An error occurred: {e}")
         return None
     finally:
-        # Close the browser window
         driver.quit()
 
 def submit_order_search(url: str):
