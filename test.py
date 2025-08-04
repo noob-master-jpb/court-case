@@ -3,15 +3,24 @@ from selenium.webdriver.common.by import By
 import time
 from bs4 import BeautifulSoup
 import re
+from selenium.webdriver.firefox.options import Options
+
 
 def submit_case_search(case_type: str, case_number: str, year: str):
-    """
-    Navigates to the court website, fills the search form with user data,
-    and submits it.
-    """
-    driver = webdriver.Firefox()
     
-    court_url = "https://delhihighcourt.nic.in/app/get-case-type-status" 
+    _options = Options()
+    _options.add_argument("--headless")
+    try:
+        driver = webdriver.Firefox(options=_options)
+    except Exception as e:
+        try:
+            driver = webdriver.Chrome(options=_options)
+        except Exception as e:
+            print(f"Error initializing the browser: {e}")
+            return None
+        
+        
+    court_url = "https://delhihighcourt.nic.in/app/get-case-type-status"
     driver.get(court_url)
 
     try:
@@ -32,9 +41,6 @@ def submit_case_search(case_type: str, case_number: str, year: str):
         case_year_element.send_keys(year)
         captcha_input_element.send_keys(captcha_text)  
 
-        
-
-
         submit_button_element.click()
 
 
@@ -53,7 +59,16 @@ def submit_case_search(case_type: str, case_number: str, year: str):
         driver.quit()
 
 def submit_order_search(url: str):
-    driver = webdriver.Firefox()  
+    _options = Options()
+    _options.add_argument("--headless")
+    try:
+        driver = webdriver.Firefox(options=_options)
+    except Exception as e:
+        try:
+            driver = webdriver.Chrome(options=_options)
+        except Exception as e:
+            print(f"Error initializing the browser: {e}")
+            return None
     driver.get(url)
     try:
         page_html = driver.page_source
@@ -66,10 +81,7 @@ def submit_order_search(url: str):
     finally:
         driver.quit()
     
-if __name__ == '__main__':
-    user_case_type = "W.P.(C)"
-    user_case_number = "4352"
-    user_case_year = "2025"
+def order_extractor(user_case_type, user_case_number, user_case_year):
     data = {
         "case_type": user_case_type,
         "case_number": user_case_number,
@@ -108,12 +120,12 @@ if __name__ == '__main__':
     else:
         data["status"] = None
         data["order_link"] = None
-    # print(data)
+
     
     col2 = column_data[1]
     data["petitioner"] = col2.text.split("VS.")[0].strip()
     data["respondent"] = col2.text.split("VS.")[1].strip()
-    # print(data)
+
     
     col3 = str(column_data[2])
     next_date = col3.split("<br/>")[0].strip("</td> \t \n").split(":")
@@ -146,5 +158,12 @@ if __name__ == '__main__':
         temp["date"] = cells[2].text
         order_data.append(temp)
     data["orders"] = order_data
-    from pprint import pprint
-    pprint(data)
+    return data
+
+if __name__ == "__main__":
+    user_case_type = "W.P.(C)"
+    user_case_number = "4352"
+    user_case_year = "2025"
+    
+    result = order_extractor(user_case_type, user_case_number, user_case_year)
+    print(result)
