@@ -3,16 +3,14 @@ from selenium.webdriver.common.by import By
 import time
 from bs4 import BeautifulSoup
 import re
-data = ""
+
 def submit_case_search(case_type: str, case_number: str, year: str):
     """
     Navigates to the court website, fills the search form with user data,
     and submits it.
     """
-    driver = webdriver.Firefox()  # You can also use Chrome or any other browser driver
+    driver = webdriver.Firefox()
     
-    # 1. Navigate to the specific court website URL
-    # Replace with the actual URL you are targeting
     court_url = "https://delhihighcourt.nic.in/app/get-case-type-status" 
     driver.get(court_url)
 
@@ -28,27 +26,21 @@ def submit_case_search(case_type: str, case_number: str, year: str):
         captcha_input_element = driver.find_element(By.ID, 'captchaInput')
         
         captcha_text = captcha_code_element.text
-        # global data
-        # data = captcha_text
+
         case_type_element.send_keys(case_type)
         case_number_element.send_keys(case_number)
         case_year_element.send_keys(year)
-        captcha_input_element.send_keys(captcha_text)  # Replace with actual CAPTCHA handling logic
+        captcha_input_element.send_keys(captcha_text)  
 
         
-        # Handle any CAPTCHA here if necessary (e.g., by pausing)
-        # time.sleep(20) 
 
-        # 4. Click the submit button to "send the request"
-        print("Submitting form with the provided data...")
+
         submit_button_element.click()
 
-        # 5. Wait for the results page to load
-        print("Waiting for results to load...")
-        time.sleep(2) # A simple pause to allow the next page to load
 
-        # At this point, the browser controlled by Selenium is on the results page.
-        # You can now get the page's HTML for parsing.
+        print("Waiting for results to load...")
+        time.sleep(2) 
+
         page_html = driver.page_source
         print("Results page loaded successfully.")
         return page_html
@@ -60,7 +52,20 @@ def submit_case_search(case_type: str, case_number: str, year: str):
         # Close the browser window
         driver.quit()
 
-
+def submit_order_search(url: str):
+    driver = webdriver.Firefox()  
+    driver.get(url)
+    try:
+        page_html = driver.page_source
+        print("Results page loaded successfully.")
+        
+        return page_html
+    except Exception as e:
+        print(f"An error occurred while fetching order data: {e}")
+        return None
+    finally:
+        driver.quit()
+    
 if __name__ == '__main__':
     user_case_type = "W.P.(C)"
     user_case_number = "4352"
@@ -92,39 +97,54 @@ if __name__ == '__main__':
                         column_data.append(column)
                     
     column_data = column_data[1::]
-    col1 = column_data[0]
-    col1 = str(col1).split("<br/>")[1::]
-    
 
-    if len(col1) > 0:
-        text = col1[0]
-        match = re.search(r'\[([^\]]+)\]', text)
-        if match:
-            extracted_data = match.group(1)
-            print(f"Extracted status: {extracted_data}")
+    col1 = column_data[0].find_all(['a','font'])[1::]
+    if col1:
+        data["status"] = col1[0].text.strip()[1:-1]  
+        if len(col1) > 1:
+            data["order_link"] = col1[1].get('href', '').strip()
         else:
-            print("No bracketed text found")
-    
-    # Extract link from col1[1]
-    if len(col1) > 1:
-        link_text = col1[1]
-
-        
-        # Try to extract href using regex
-        link_match = re.search(r'href="([^"]*)"', link_text)
-        if link_match:
-            extracted_link = link_match.group(1)
-            print(f"Extracted link: {extracted_link}")
-        else:
-            # Try alternative patterns
-            link_match = re.search(r'href=["\']([^"\']*)["\']', link_text)
-            if link_match:
-                extracted_link = link_match.group(1)
-                print(f"Extracted link (alt pattern): {extracted_link}")
-            else:
-                print("No link found in col1[1]")
-                print(f"Full content: {link_text}")
+            data["order_link"] = None
     else:
-        print("col1[1] not available")
+        data["status"] = None
+        data["order_link"] = None
+    # print(data)
     
-
+    col2 = column_data[1]
+    data["petitioner"] = col2.text.split("VS.")[0].strip()
+    data["respondent"] = col2.text.split("VS.")[1].strip()
+    # print(data)
+    
+    col3 = str(column_data[2])
+    next_date = col3.split("<br/>")[0].strip("</td> \t \n").split(":")
+    if next_date[1].strip() == "NA":
+        data[next_date[0].strip()] = None
+    else:
+        data[next_date[0].strip()] = next_date[1].strip()
+    try:
+        temp1 = col3.split("<br/>")[1].strip("</td> \t \n").split(":")
+        data[temp1[0].strip()] = temp1[1].strip()
+    except:
+        pass
+    try:
+        temp2 = col3.split("<br/>")[2].strip("</td> \t \n").split(":")
+        data[temp2[0].strip()] = temp2[1].strip()
+    except:
+        pass
+    
+    order_data = []
+    
+    soup = BeautifulSoup(submit_order_search(data["order_link"]), 'html.parser')
+    target_elements = soup.find_all(id="caseTable")
+    if target_elements:
+        tbody = target_elements[0].find('tbody')
+    orders = tbody.find_all('tr')
+    for i in orders:
+        temp = {}
+        cells = i.find_all('td')
+        temp["link"] = cells[1].find_all('a')[0].get('href')
+        temp["date"] = cells[2].text
+        order_data.append(temp)
+    data["orders"] = order_data
+    from pprint import pprint
+    pprint(data)
