@@ -1,9 +1,20 @@
 from flask import Flask, send_from_directory, render_template
-import random
+from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
+from model import *
+
+
+
+
+
 
 app = Flask(__name__, static_folder='frontend/public', static_url_path='/static')
-
-# Path for our main Svelte page
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///main.db'
+migrate = Migrate(app,db)
+db.init_app(app)
+with app.app_context():
+    db.create_all()
+    
 @app.route("/")
 def base():
     return render_template('app.html')

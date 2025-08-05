@@ -204,16 +204,6 @@
           <input type="text" id="case_year" name="case_year" required>
         </div>
       </div>
-      <div class='captcha'>
-        <div id= "placeholder">
-          image will be here
-        </div>
-
-        <div>
-          <label for="captcha">Captcha:</label>
-          <input type="text" id="captcha" name="captcha" required>
-        </div>
-      </div>
       <div class=submit>
         <button type="submit">Submit</button>
       </div>
@@ -285,34 +275,6 @@
   border: 1px solid black;
   border-radius: 7px;
 }
-
-.captcha {
-  width:100vmax;
-  height: min-content;
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  align-content: center;
-}
-
-.captcha div{
-  padding: 10px;
-}
-
-.captcha input {
-  width: 200px;
-}
-
-#placeholder {
-  font-size: 12px;
-  width: 150px;
-  height: 70px;
-  background-color: lightgray;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
 .submit {
   display: flex;
   justify-content: center;

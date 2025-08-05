@@ -6,8 +6,6 @@ from selenium.webdriver.firefox.options import Options as FirefoxOptions
 from selenium.webdriver.chrome.options import Options as ChromeOptions
 
 def submit_case_search(case_type: str, case_number: str, year: str):
-    
-
     try:
         _options = FirefoxOptions()
         _options.add_argument("--headless")
@@ -19,14 +17,12 @@ def submit_case_search(case_type: str, case_number: str, year: str):
             driver = webdriver.Chrome(options=_options)
         except Exception as e:
             print(f"Error initializing the browser: {e}")
-            return None
-        
+            return None    
         
     court_url = "https://delhihighcourt.nic.in/app/get-case-type-status"
     driver.get(court_url)
 
     try:
-
         case_type_element = driver.find_element(By.ID, 'case_type')
         case_number_element = driver.find_element(By.ID, 'case_number')
         case_year_element = driver.find_element(By.ID, 'case_year')
@@ -43,8 +39,6 @@ def submit_case_search(case_type: str, case_number: str, year: str):
         captcha_input_element.send_keys(captcha_text)  
 
         submit_button_element.click()
-
-
         print("Waiting for results to load...")
         time.sleep(2) 
 
@@ -158,6 +152,7 @@ def get_filing_date(case_type: str, case_number: str, year: str):
     except Exception as e:
         print(f"An error occurred while parsing the filing date: {e}")
         return None
+    
 def order_extractor(user_case_type, user_case_number, user_case_year):
     data = {
         "case_type": user_case_type,
