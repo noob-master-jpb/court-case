@@ -202,17 +202,17 @@ def order_extractor(user_case_type, user_case_number, user_case_year):
     col3 = str(column_data[2])
     next_date = col3.split("<br/>")[0].strip("</td> \t \n").split(":")
     if next_date[1].strip() == "NA":
-        data[next_date[0].strip()] = None
+        data[next_date[0].strip().lower().replace(" ", "_")] = None
     else:
-        data[next_date[0].strip()] = next_date[1].strip()
+        data[next_date[0].strip().lower().replace(" ", "_")] = next_date[1].strip()
     try:
         temp1 = col3.split("<br/>")[1].strip("</td> \t \n").split(":")
-        data[temp1[0].strip()] = temp1[1].strip()
+        data[temp1[0].strip().lower().replace(" ", "_")] = temp1[1].strip()
     except:
         pass
     try:
         temp2 = col3.split("<br/>")[2].strip("</td> \t \n").split(":")
-        data[temp2[0].strip()] = temp2[1].strip()
+        data[temp2[0].strip().lower().replace(" ", "_")] = temp2[1].strip()
     except:
         pass
     

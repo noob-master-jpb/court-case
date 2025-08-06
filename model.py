@@ -3,9 +3,8 @@ import os
 from datetime import datetime
 from sqlalchemy.schema import UniqueConstraint
 db = SQLAlchemy()
-SQLALCHEMY_DATABASE_URI = f"sqlite:///database.db"
-SQLALCHEMY_TRACK_MODIFICATIONS = False
-db = SQLAlchemy()
+SQLALCHEMY_DATABASE_URI = f"sqlite:///main.db"
+
 
 class Case(db.Model):
     __tablename__ = 'case'
@@ -33,9 +32,9 @@ class Order(db.Model):
     
     id = db.Column(db.Integer, primary_key=True)
     order_id = db.Column(db.Integer, db.ForeignKey('case.order_id'), nullable=False)
-    order_links = db.Column(db.JSON)  # SQLite 3.38+ supports JSON, otherwise use Text
+    order_links = db.Column(db.JSON)
     
     def __repr__(self):
         return f'<Order {self.order_id}>'
 
-# Function to create all tables
+

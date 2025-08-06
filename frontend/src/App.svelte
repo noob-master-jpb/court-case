@@ -1,207 +1,87 @@
 <script>
 
     import { onMount } from 'svelte';
-    import { each } from 'svelte/internal';
+    import { contenteditable_truthy_values, each } from 'svelte/internal';
+    import Dashboard from "./dashboard.svelte";
   let ctype = '';
   let clist = [];
+  let case_data = {
+    case_type: '',
+    case_number: '',
+    case_year: ''
+  }
 
+  async function load_list() {
+    const response = await fetch('/type_list');
+    if (response.ok) {
+      clist = await response.json();
+    } else {
+      console.error('Failed to load case types');
+    }
+  }
 
+  async function handleSubmit(event) {
+    event.preventDefault();
+    console.log('Form submitted:', case_data);
+    fetch('/data', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(case_data)
+    })
+    .then(response => {
+      if (response.ok) {
+        return response.json();
+      } else {        throw new Error('Network response was not ok');
+      }
+    })
+    .then(data => {
+      console.log('Success:', data);
+      // Handle success response here, e.g., show a success message or redirect
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      // Handle error response here, e.g., show an error message
+    });
+  }
+
+onMount(() => {
+    load_list();
+  });
+
+let test = true;
 
 </script>
-
+{#if test}
+  <Dashboard/>
+{/if}
 <div class="main">
   <div class="top">
   DELHI HIGH COURT
   </div>
   <div class="content">
-    <form id="form">
+    <form id="form_data" on:submit={handleSubmit}>
       <div class="case_details">
         <div>
 
           <label for="case_type">Case Type:</label>
-            <select type="text" id="case_type" name="case_type" required>
-            <option value="0" selected="true"> Select</option>
-            <option value="ARB.A.">ARB.A.</option>
-            <option value="ARB. A. (COMM.)">ARB. A. (COMM.)</option>
-            <option value="ARB.P.">ARB.P.</option>
-            <option value="AW">AW</option>
-            <option value="BAIL APPLN.">BAIL APPLN.</option>
-            <option value="CA">CA</option>
-            <option value="CA (COMM.IPD-CR)">CA (COMM.IPD-CR)</option>
-            <option value="C.A.(COMM.IPD-GI)">C.A.(COMM.IPD-GI)</option>
-            <option value="C.A.(COMM.IPD-PAT)">C.A.(COMM.IPD-PAT)</option>
-            <option value="C.A.(COMM.IPD-PV)">C.A.(COMM.IPD-PV)</option>
-            <option value="C.A.(COMM.IPD-TM)">C.A.(COMM.IPD-TM)</option>
-            <option value="CAV">CAV</option>
-            <option value="CAVEAT(CO.)">CAVEAT(CO.)</option>
-            <option value="CC">CC</option>
-            <option value="CC(ARB.)">CC(ARB.)</option>
-            <option value="CC(COMM)">CC(COMM)</option>
-            <option value="CCP(CO.)">CCP(CO.)</option>
-            <option value="CCP(O)">CCP(O)</option>
-            <option value="CCP(REF)">CCP(REF)</option>
-            <option value="CEAC">CEAC</option>
-            <option value="CEAR">CEAR</option>
-            <option value="CF">CF</option>
-            <option value="CHAT.A.C.">CHAT.A.C.</option>
-            <option value="CHAT.A.REF">CHAT.A.REF</option>
-            <option value="CM APPL.">CM APPL.</option>
-            <option value="CMI">CMI</option>
-            <option value="CM(M)">CM(M)</option>
-            <option value="CM(M)-IPD">CM(M)-IPD</option>
-            <option value="C.O.">C.O.</option>
-            <option value="CO.APP.">CO.APP.</option>
-            <option value="CO.APPL.">CO.APPL.</option>
-            <option value="CO.APPL.(C)">CO.APPL.(C)</option>
-            <option value="CO.APPL.(M)">CO.APPL.(M)</option>
-            <option value="CO.A(SB)">CO.A(SB)</option>
-            <option value="C.O.(COMM.IPD-CR)">C.O.(COMM.IPD-CR)</option>
-            <option value="C.O.(COMM.IPD-GI)">C.O.(COMM.IPD-GI)</option>
-            <option value="C.O.(COMM.IPD-PAT)">C.O.(COMM.IPD-PAT)</option>
-            <option value="C.O. (COMM.IPD-TM)">C.O. (COMM.IPD-TM)</option>
-            <option value="CO.EX.">CO.EX.</option>
-            <option value="CONT.APP.(C)">CONT.APP.(C)</option>
-            <option value="CONT.CAS(C)">CONT.CAS(C)</option>
-            <option value="CONT.CAS.(CRL)">CONT.CAS.(CRL)</option>
-            <option value="CO.PET.">CO.PET.</option>
-            <option value="CO.SEC.REF">CO.SEC.REF</option>
-            <option value="C.REF.">C.REF.</option>
-            <option value="C.REF.(O)">C.REF.(O)</option>
-            <option value="CRL.A.">CRL.A.</option>
-            <option value="CRL.C.REF.">CRL.C.REF.</option>
-            <option value="CRL.L.P.">CRL.L.P.</option>
-            <option value="CRL.M.A.">CRL.M.A.</option>
-            <option value="CRL.M.(BAIL)">CRL.M.(BAIL)</option>
-            <option value="CRL.M.C.">CRL.M.C.</option>
-            <option value="CRL.M.(CO.)">CRL.M.(CO.)</option>
-            <option value="CRL.M.I.">CRL.M.I.</option>
-            <option value="CRL.O.">CRL.O.</option>
-            <option value="CRL.O.(CO.)">CRL.O.(CO.)</option>
-            <option value="CRL.REF.">CRL.REF.</option>
-            <option value="CRL.REV.P.">CRL.REV.P.</option>
-            <option value="CRL.REV.P.(MAT.)">CRL.REV.P.(MAT.)</option>
-            <option value="CRL.REV.P.(NDPS)">CRL.REV.P.(NDPS)</option>
-            <option value="CRL.REV.P.(NI)">CRL.REV.P.(NI)</option>
-            <option value="C.R.P.">C.R.P.</option>
-            <option value="CRP-IPD">CRP-IPD</option>
-            <option value="C.RULE">C.RULE</option>
-            <option value="CS(COMM)">CS(COMM)</option>
-            <option value="CS(COMM) INFRA">CS(COMM) INFRA</option>
-            <option value="CS(OS)">CS(OS)</option>
-            <option value="CS(OS) GP">CS(OS) GP</option>
-            <option value="CS(OS) INFRA">CS(OS) INFRA</option>
-            <option value="CUSAA">CUSAA</option>
-            <option value="CUS.A.C.">CUS.A.C.</option>
-            <option value="CUS.A.R.">CUS.A.R.</option>
-            <option value="CUSTOM A.">CUSTOM A.</option>
-            <option value="DEATH SENTENCE REF.">DEATH SENTENCE REF.</option>
-            <option value="DEMO">DEMO</option>
-            <option value="EDA">EDA</option>
-            <option value="EDC">EDC</option>
-            <option value="EDR">EDR</option>
-            <option value="EFA(COMM)">EFA(COMM)</option>
-            <option value="EFA(OS)">EFA(OS)</option>
-            <option value="EFA(OS)  (COMM)">EFA(OS)  (COMM)</option>
-            <option value="EFA(OS)(IPD)">EFA(OS)(IPD)</option>
-            <option value="EL.PET.">EL.PET.</option>
-            <option value="ETR">ETR</option>
-            <option value="EX.APPL.(OS)">EX.APPL.(OS)</option>
-            <option value="EX.F.A.">EX.F.A.</option>
-            <option value="EX.P.">EX.P.</option>
-            <option value="EX.S.A.">EX.S.A.</option>
-            <option value="FAO">FAO</option>
-            <option value="FAO (COMM)">FAO (COMM)</option>
-            <option value="FAO-IPD">FAO-IPD</option>
-            <option value="FAO(OS)">FAO(OS)</option>
-            <option value="FAO(OS) (COMM)">FAO(OS) (COMM)</option>
-            <option value="FAO(OS)(IPD)">FAO(OS)(IPD)</option>
-            <option value="GCAC">GCAC</option>
-            <option value="GCAR">GCAR</option>
-            <option value="GTA">GTA</option>
-            <option value="GTC">GTC</option>
-            <option value="GTR">GTR</option>
-            <option value="I.A.">I.A.</option>
-            <option value="I.P.A.">I.P.A.</option>
-            <option value="ITA">ITA</option>
-            <option value="ITC">ITC</option>
-            <option value="ITR">ITR</option>
-            <option value="ITSA">ITSA</option>
-            <option value="LA.APP.">LA.APP.</option>
-            <option value="LPA">LPA</option>
-            <option value="MAC.APP.">MAC.APP.</option>
-            <option value="MAT.">MAT.</option>
-            <option value="MAT.APP.">MAT.APP.</option>
-            <option value="MAT.APP.(F.C.)">MAT.APP.(F.C.)</option>
-            <option value="MAT.CASE">MAT.CASE</option>
-            <option value="MAT.REF.">MAT.REF.</option>
-            <option value="MISC. APPEAL(PMLA)">MISC. APPEAL(PMLA)</option>
-            <option value="OA">OA</option>
-            <option value="O.A.">O.A.</option>
-            <option value="O.A.(APPLT)">O.A.(APPLT)</option>
-            <option value="OBJ">OBJ</option>
-            <option value="OCJA">OCJA</option>
-            <option value="OD">OD</option>
-            <option value="OLR">OLR</option>
-            <option value="O.M.P.">O.M.P.</option>
-            <option value="O.M.P. (COMM)">O.M.P. (COMM)</option>
-            <option value="O.M.P. (COMM) INFRA">O.M.P. (COMM) INFRA</option>
-            <option value="OMP (CONT.)">OMP (CONT.)</option>
-            <option value="O.M.P. (E)">O.M.P. (E)</option>
-            <option value="O.M.P. (E) (COMM.)">O.M.P. (E) (COMM.)</option>
-            <option value="O.M.P.(EFA)(COMM.)">O.M.P.(EFA)(COMM.)</option>
-            <option value="O.M.P. (ENF.)">O.M.P. (ENF.)</option>
-            <option value="OMP (ENF.) (COMM.)">OMP (ENF.) (COMM.)</option>
-            <option value="O.M.P.(I)">O.M.P.(I)</option>
-            <option value="O.M.P.(I) (COMM.)">O.M.P.(I) (COMM.)</option>
-            <option value="OMP (INFRA)">OMP (INFRA)</option>
-            <option value="O.M.P. (J) (COMM.)">O.M.P. (J) (COMM.)</option>
-            <option value="O.M.P. (MISC.)">O.M.P. (MISC.)</option>
-            <option value="O.M.P.(MISC.)(COMM.)">O.M.P.(MISC.)(COMM.)</option>
-            <option value="O.M.P.(T)">O.M.P.(T)</option>
-            <option value="O.M.P. (T) (COMM.)">O.M.P. (T) (COMM.)</option>
-            <option value="O.REF.">O.REF.</option>
-            <option value="RC.REV.">RC.REV.</option>
-            <option value="RC.S.A.">RC.S.A.</option>
-            <option value="REPORT">REPORT</option>
-            <option value="RERA APPEAL">RERA APPEAL</option>
-            <option value="REVIEW PET.">REVIEW PET.</option>
-            <option value="RFA">RFA</option>
-            <option value="RFA(COMM)">RFA(COMM)</option>
-            <option value="RFA-IPD">RFA-IPD</option>
-            <option value="RFA(OS)">RFA(OS)</option>
-            <option value="RFA(OS)(COMM)">RFA(OS)(COMM)</option>
-            <option value="RFA(OS)(IPD)">RFA(OS)(IPD)</option>
-            <option value="RSA">RSA</option>
-            <option value="SCA">SCA</option>
-            <option value="SDR">SDR</option>
-            <option value="SERTA">SERTA</option>
-            <option value="ST.APPL.">ST.APPL.</option>
-            <option value="STC">STC</option>
-            <option value="ST.REF.">ST.REF.</option>
-            <option value="SUR.T.REF.">SUR.T.REF.</option>
-            <option value="TEST.CAS.">TEST.CAS.</option>
-            <option value="TR.P.(C.)">TR.P.(C.)</option>
-            <option value="TR.P.(C)">TR.P.(C)</option>
-            <option value="TR.P.(CRL.)">TR.P.(CRL.)</option>
-            <option value="VAT APPEAL">VAT APPEAL</option>
-            <option value="W.P.(C)">W.P.(C)</option>
-            <option value="W.P.(C)-IPD">W.P.(C)-IPD</option>
-            <option value="WP(C)(IPD)">WP(C)(IPD)</option>
-            <option value="W.P.(CRL)">W.P.(CRL)</option>
-            <option value="WTA">WTA</option>
-            <option value="WTC">WTC</option>
-            <option value="WTR">WTR</option>
+            <select type="text" id="case_type" name="case_type" bind:value={case_data.case_type} required>
+              <option value="0" selected="true"> Select</option>
+            {#each clist as item}
+              <option value={item}>{item}</option>
+            {/each}
             </select>
         </div>
                   
         <div>
           <label for="case_number">Case Number:</label>
-          <input type="text" id="case_number" name="case_number" required>
+          <input type="text" id="case_number" name="case_number" bind:value={case_data.case_number} required>
         </div>
 
         <div>
           <label for="case_year">Case Year:</label>
-          <input type="text" id="case_year" name="case_year" required>
+          <input type="text" id="case_year" name="case_year" bind:value={case_data.case_year} required>
         </div>
       </div>
       <div class=submit>
@@ -210,99 +90,402 @@
 
     </form>
   </div>
-  <div class="bottom">
-    Delhi High Court, Saturday , 02-Aug-2025
-  </div>
 </div>
 
+
 <style>
-.main{
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+:root {
+  --primary-gradient: linear-gradient(135deg, #0f172a 0%, #102342 50%, #000000 100%);
+  --secondary-gradient: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%);
+  --accent-color: #11f4f4;
+  --text-primary: #f8fafc;
+  --text-secondary: #cbd5e1;
+  --border-light: #374151;
+  --border-dark: #4b5563;
+  --bg-primary: #1f2937;
+  --bg-secondary: #111827;
+  --shadow-light: 0 4px 6px rgba(0, 0, 0, 0.3);
+  --shadow-medium: 0 10px 25px rgba(0, 0, 0, 0.4);
+  --shadow-heavy: 0 20px 40px rgba(0, 0, 0, 0.5);
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.main {
   display: flex;
   flex-direction: column;
-  height: 100vh;
-  background-color: aqua;
+  min-height: 100vh;
+  background: var(--primary-gradient);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  position: relative;
+  overflow-x: hidden;
+}
+
+.main::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at 20% 80%, rgba(59, 130, 246, 0.15) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(251, 191, 36, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 40% 40%, rgba(99, 102, 241, 0.1) 0%, transparent 50%);
+  pointer-events: none;
 }
 
 .top {
-  flex: 2;
-  font-size: 60px;
+  flex: 0 0 auto;
+  padding: 3rem 2rem;
+  font-size: clamp(2.5rem, 6vw, 4rem);
   color: white;
-  text-shadow: 3px 3px 5px rgba(0, 0, 0, 0.5), -3px -3px 5px rgba(0, 0, 0, 0.5), 3px -3px 5px rgba(0, 0, 0, 0.5), -3px 3px 5px rgba(0, 0, 0, 0.5);
-  font-weight: bold;
-  font-display: swap;
-  background-color: #954d51;
+  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  font-weight: 800;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
   display: flex;
   justify-content: center;
   align-items: center;
+  text-align: center;
+  letter-spacing: 2px;
+  position: relative;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+.top::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--accent-color) 0%, #3b82f6 50%, var(--accent-color) 100%);
 }
 
 .content {
-  font-size: 24px;
-  font-weight: bold;
-  font-family: 'Trebuchet MS';
-  flex: 7;
-  background-color: white;
-  display: flex;
-  align-items: center;
-}
-.bottom {
   flex: 1;
-  background-color: #61677a;
   display: flex;
-  color: white;
   justify-content: center;
   align-items: center;
+  padding: 3rem 2rem;
+  position: relative;
+  z-index: 1;
+}
+
+#form {
+  background: rgba(31, 41, 55, 0.95);
+  border-radius: 32px;
+  padding: 4rem;
+  box-shadow: 
+    0 25px 50px rgba(0, 0, 0, 0.3),
+    0 0 0 1px rgba(75, 85, 99, 0.3);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--border-light);
+  max-width: 1200px;
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+  animation: slideInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#form::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #3b82f6 0%, #6366f1 50%, #3b82f6 100%);
+  background-size: 200% 100%;
+  animation: shimmer 3s ease-in-out infinite;
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes shimmer {
+  0%, 100% { background-position: 200% 0; }
+  50% { background-position: -200% 0; }
 }
 
 .case_details {
-  width:100vmax;
-  height: min-content;
-  display: flex;
-  flex-direction: row;
-  justify-content: space-around;
-  align-content: space-around;
-  margin: 30px;
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 2rem;
+  margin-bottom: 3rem;
+  align-items: end;
 }
 
-.case_details div label{
+.case_details div {
   display: flex;
   flex-direction: column;
-  padding: 10px;
+  position: relative;
 }
 
-.case_details input {
-  width: 250px;
-  border: 1px solid black;
-  border-radius: 7px;
+.case_details label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
+
+.case_details label::before {
+  content: '';
+  width: 4px;
+  height: 4px;
+  background: var(--accent-color);
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.case_details input,
+.case_details select {
+  padding: 1.25rem 1.5rem;
+  border: 2px solid var(--border-light);
+  border-radius: 16px;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: var(--transition);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  position: relative;
+  box-shadow: var(--shadow-light);
+}
+
+.case_details input:focus,
+.case_details select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  background: var(--bg-secondary);
+  box-shadow: 
+    0 0 0 4px rgba(59, 130, 246, 0.2),
+    0 8px 25px rgba(59, 130, 246, 0.25);
+  transform: translateY(-2px);
+}
+
+.case_details input::placeholder {
+  color: var(--text-secondary);
+  font-weight: 400;
+}
+
+.case_details select {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23cbd5e1' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 1.5rem center;
+  background-repeat: no-repeat;
+  background-size: 1.25rem;
+  padding-right: 4rem;
+}
+
+.case_details select:hover {
+  border-color: #3b82f6;
+  box-shadow: var(--shadow-medium);
+}
+
 .submit {
   display: flex;
   justify-content: center;
-  align-items: center;
-  margin: 20px;
+  margin-top: 2rem;
+  gap: 1rem;
 }
 
 .submit button {
-  width:10em;
-  padding: 10px 20px;
-  font-size: 16px;
+  padding: 1.25rem 3.5rem;
+  font-size: 1.1rem;
+  font-weight: 700;
   cursor: pointer;
-  background-color: #4CAF50;
+  background: var(--secondary-gradient);
   color: white;
   border: none;
-  border-radius: 4px;
-  transition: all 0.3s ease;
+  border-radius: 50px;
+  transition: var(--transition);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  box-shadow: 
+    0 12px 24px rgba(102, 126, 234, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+.submit button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.submit button:hover::before {
+  left: 100%;
 }
 
 .submit button:hover {
-  background-color: #45a049;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  transform: translateY(-4px);
+  box-shadow: 
+    0 20px 40px rgba(59, 130, 246, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  background: linear-gradient(135deg, #2563eb 0%, #4f46e5 100%);
 }
 
 .submit button:active {
-  transform: translateY(0);
-  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  transform: translateY(-2px);
+  box-shadow: 
+    0 8px 16px rgba(59, 130, 246, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+/* Enhanced Responsive Design */
+@media (max-width: 1024px) {
+  #form {
+    padding: 3rem 2.5rem;
+  }
+  
+  .case_details {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .top {
+    padding: 2rem 1.5rem;
+  }
+  
+  .content {
+    padding: 2rem 1rem;
+  }
+  
+  #form {
+    margin: 0;
+    padding: 2.5rem 1.5rem;
+    border-radius: 24px;
+  }
+  
+  .case_details {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  
+  .submit button {
+    padding: 1rem 2.5rem;
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .top {
+    padding: 1.5rem 1rem;
+  }
+  
+  #form {
+    padding: 2rem 1rem;
+    border-radius: 20px;
+  }
+  
+  .case_details input,
+  .case_details select {
+    padding: 1rem;
+    font-size: 0.95rem;
+  }
+  
+  .submit button {
+    padding: 1rem 2rem;
+    width: 100%;
+    max-width: 300px;
+  }
+}
+
+/* Loading states and interactions */
+.case_details select:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background-color: var(--bg-secondary);
+}
+
+.case_details select option {
+  padding: 0.75rem;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.case_details select option:hover {
+  background: var(--bg-secondary);
+}
+
+/* Form validation styles */
+.case_details input:invalid:not(:placeholder-shown) {
+  border-color: #003c3f;
+  box-shadow: 0 0 0 3px rgba(0, 48, 76, 0.2);
+}
+
+.case_details input:valid:not(:placeholder-shown) {
+  border-color: #10b981;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+}
+
+/* Enhanced accessibility */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  
+  .submit button::before {
+    display: none;
+  }
+}
+
+/* Focus styles for accessibility */
+.case_details input:focus-visible,
+.case_details select:focus-visible,
+.submit button:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 2px;
+}
+
+/* Print styles */
+@media print {
+  .main {
+    background: white !important;
+  }
+
+  .top {
+    background: #333 !important;
+    color: white !important;
+  }
+  
+  #form {
+    box-shadow: none !important;
+    border: 2px solid #333 !important;
+  }
 }
 
 </style>
