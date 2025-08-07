@@ -16,6 +16,8 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///main.db'
 
 migrate = Migrate(app,db)
 db.init_app(app)
+# with app.app_context():
+#     db.create_all()
 
     
 @app.route("/")
@@ -35,25 +37,58 @@ def hello():
         return jsonify({"error": "No case types available"}), 404
     if type(clist) is not list:
         return jsonify({"error": "Invalid case types data"}), 500
-    
-    
-    
     return jsonify(clist), 200
 
 @app.post("/data")
 def get_data():
     
     request_data = request.json
+
+    case_type = request_data.get('case_type')
+    case_number = request_data.get('case_number')
+    case_year = request_data.get('case_year')
     
-    print(request_data)
+    if not case_type or not case_number or not case_year:
+        return jsonify({"error": "Missing case type, number, or year"}), 400
     
-    
-    
+
+    try:
+        query = Query(
+            case_type=case_type,
+            case_number=case_number,
+            case_year=case_year
+        )
+        db.session.add(query)
+        db.session.commit()
+        query_id = query.id
+    except Exception as e:
+        print(f"Error saving query to database: {e}")
+        query_id = None
+
     data = order_extractor(
-        user_case_type=request_data.get('case_type'),
-        user_case_number=request_data.get('case_number'),
-        user_case_year=request_data.get('case_year')
+        user_case_type=case_type,
+        user_case_number=case_number,
+        user_case_year=case_year
     )
+    try:
+        case = Case(
+                query_id = query_id,
+                case_type = case_type,
+                case_number = case_number,
+                case_year = case_year,
+                status = data.get('status'),
+                filing_date = data.get('filing_date'),
+                next_date = data.get('next_date'),
+                last_date = data.get('last_date'),
+                petitioner = data.get('petitioner'),
+                respondent = data.get('respondent'),
+                order_link = data.get('order_link'),
+                orders = data.get('orders')
+        )
+        db.session.add(case)
+        db.session.commit()
+    except Exception as e:
+        print(f"Error saving case to database: {e}")
     
     return jsonify(data)
 
