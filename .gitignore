@@ -64,7 +64,7 @@ db.sqlite3
 db.sqlite3-journal
 
 # Flask stuff:
-
+instance/
 .webassets-cache
 
 # Scrapy stuff:
@@ -207,3 +207,13 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# SQLite database files
+*.db
+*.db-wal
+*.db-wal2
+*.db-journal
+*.db-shm
+
+# Flask instance folder
+instance/

@@ -23,7 +23,6 @@ let pdfLoading = false;
                 throw new Error('Failed to generate PDF');
             }
 
-            // Get the filename from the response headers or generate one
             const contentDisposition = response.headers.get('content-disposition');
             let filename = 'case_report.pdf';
             if (contentDisposition) {
@@ -33,7 +32,6 @@ let pdfLoading = false;
                 }
             }
 
-            // Create blob and download
             const blob = await response.blob();
             const url = window.URL.createObjectURL(blob);
             const link = document.createElement('a');
@@ -174,7 +172,6 @@ let pdfLoading = false;
                                 window.URL.revokeObjectURL(url);
                             } catch (error) {
                                 console.error('Download failed:', error);
-                                // Fallback to opening in new tab
                                 window.open(order.link, '_blank');
                             }
                         }}>

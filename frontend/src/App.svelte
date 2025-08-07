@@ -12,7 +12,7 @@
   let clist = [];
   let isSubmitting = false;
   let lastSubmitTime = 0;
-  const SUBMIT_DEBOUNCE_TIME = 1000; // 1 second in milliseconds
+  const SUBMIT_DEBOUNCE_TIME = 1000;
   let case_data = {
     case_type: '',
     case_number: '',
@@ -38,19 +38,16 @@
   async function handleSubmit(event) {
     event.preventDefault();
     
-    // Check if we're already submitting or if not enough time has passed
     const currentTime = Date.now();
     if (isSubmitting || (currentTime - lastSubmitTime < SUBMIT_DEBOUNCE_TIME)) {
       
       return;
     }
-    // Validate case number is numeric
     if (!/^\d+$/.test(case_data.case_number.trim())) {
       alert('Case number must contain only numbers.');
       return;
     }
 
-    // Validate case year is numeric and not in the future
     const currentYear = new Date().getFullYear();
     const caseYear = parseInt(case_data.case_year.trim());
 
@@ -72,7 +69,6 @@
       return;
     }
     
-    // Set submitting state and record timestamp
     isSubmitting = true;
     lastSubmitTime = currentTime;
     
@@ -100,7 +96,6 @@
       alert('An error occurred while submitting the form. Please try again.');
     })
     .finally(() => {
-      // Reset submitting state after request completes
       isSubmitting = false;
     });
   }

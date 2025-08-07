@@ -169,7 +169,6 @@ def order_extractor(user_case_type, user_case_number, user_case_year):
     if result_html:
         print("Next step: Parse the returned HTML.")
         
-    # Parse the HTML and extract data column-wise
     soup = BeautifulSoup(result_html, 'html.parser')
     target_elements = soup.find_all(class_="dt-layout-row dt-layout-table")
 
@@ -264,7 +263,7 @@ def pdf_generator(pdf_data, save_to_disk=True):
 
     pdf.set_font('Arial', 'B', 12)
     pdf.cell(0, 8, 'CASE INFORMATION', 0, 1, 'L')
-    pdf.line(10, pdf.get_y(), 200, pdf.get_y())  # Underline
+    pdf.line(10, pdf.get_y(), 200, pdf.get_y())
     pdf.ln(5)
     
 
@@ -285,7 +284,6 @@ def pdf_generator(pdf_data, save_to_disk=True):
     
     pdf.ln(8)
     
-    # Parties Section
     pdf.set_font('Arial', 'B', 12)
     pdf.cell(0, 8, 'PARTIES', 0, 1, 'L')
     pdf.line(10, pdf.get_y(), 200, pdf.get_y())
@@ -300,7 +298,6 @@ def pdf_generator(pdf_data, save_to_disk=True):
     pdf.multi_cell(0, 6, pdf_data['respondent'])
     pdf.ln(8)
     
-    # Orders Section
     pdf.set_font('Arial', 'B', 12)
     pdf.cell(0, 8, 'ORDERS & DOCUMENTS', 0, 1, 'L')
     pdf.line(10, pdf.get_y(), 200, pdf.get_y())
@@ -309,39 +306,32 @@ def pdf_generator(pdf_data, save_to_disk=True):
     pdf.set_font('Arial', '', 10)
     if pdf_data['orders']:
         for idx, order in enumerate(pdf_data['orders'], 1):
-            # Order number and date
             pdf.cell(15, 6, f"{idx}.", 0, 0, 'L')
             pdf.cell(30, 6, "Date:", 0, 0, 'L')
             pdf.cell(40, 6, order['date'], 0, 0, 'L')
             
-            # Clickable link
             pdf.cell(20, 6, "Link:", 0, 0, 'L')
             
-            # Create clickable link text
             link_text = "Click to view document"
-            pdf.set_text_color(0, 0, 255)  # Blue color for link
-            pdf.set_font('Arial', 'U', 10)  # Underlined font for link
+            pdf.set_text_color(0, 0, 255)
+            pdf.set_font('Arial', 'U', 10)
             pdf.cell(0, 6, link_text, 0, 1, 'L', link=order['link'])
             
-            # Reset font and color for next line
-            pdf.set_text_color(0, 0, 0)  # Black color
-            pdf.set_font('Arial', '', 10)  # Regular font
+            pdf.set_text_color(0, 0, 0)
+            pdf.set_font('Arial', '', 10)
             
-            # Add full URL as reference (non-clickable, smaller text)
             pdf.set_font('Arial', '', 8)
-            pdf.set_text_color(100, 100, 100)  # Gray color
+            pdf.set_text_color(100, 100, 100)
             url_display = order['link'][:80] + ('...' if len(order['link']) > 80 else '')
-            pdf.cell(65, 4, "", 0, 0, 'L')  # Indent
+            pdf.cell(65, 4, "", 0, 0, 'L')
             pdf.cell(0, 4, f"URL: {url_display}", 0, 1, 'L')
             
-            # Reset for next order
-            pdf.set_text_color(0, 0, 0)  # Black color
-            pdf.set_font('Arial', '', 10)  # Regular font
+            pdf.set_text_color(0, 0, 0)
+            pdf.set_font('Arial', '', 10)
             pdf.ln(3)
     else:
         pdf.cell(0, 6, 'No orders available', 0, 1, 'L')
     
-    # Footer
     pdf.ln(10)
     pdf.set_font('Arial', 'I', 8)
     pdf.cell(0, 6, f'Generated on: {time.strftime("%Y-%m-%d %H:%M:%S")}', 0, 1, 'C')
@@ -357,7 +347,6 @@ def pdf_generator(pdf_data, save_to_disk=True):
         print(f"PDF saved to: {file_path}")
         return file_path
     else:
-        # Return PDF as bytes for direct client download
         pdf_bytes = pdf.output(dest='S').encode('latin1')
         return pdf_bytes
 

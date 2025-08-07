@@ -4,20 +4,22 @@ from flask_migrate import Migrate
 from model import *
 import json
 from functions import *
+from dotenv import load_dotenv
+import os
 
 
 clist = json.load(open('clist.json', 'r'))['list']
 
 app = Flask(__name__, static_folder='frontend/public', static_url_path='/static')
 
-app.secret_key = 'your_secret_key_here'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///main.db'
+load_dotenv()
+
+app.secret_key = os.getenv('SECRET_KEY', 'your_secret_key_here')
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'sqlite:///main.db')
 
 
 migrate = Migrate(app,db)
 db.init_app(app)
-# with app.app_context():
-#     db.create_all()
 
     
 @app.route("/")
@@ -98,22 +100,18 @@ def download_pdf():
     try:
         request_data = request.json
         
-        # Extract case data (same as /data endpoint)
         pdf_data = request_data
         print(f"Received PDF data: {request_data}")
         if not pdf_data:
             return jsonify({"error": "No data found for the given case"}), 404
         
-        # Generate PDF as bytes (without saving to disk)
         pdf_bytes = pdf_generator(pdf_data, save_to_disk=False)
         
         if not pdf_bytes:
             return jsonify({"error": "Failed to generate PDF"}), 500
         
-        # Generate filename
         filename = get_pdf_filename(pdf_data)
         
-        # Return PDF as downloadable response
         return Response(
             pdf_bytes,
             mimetype='application/pdf',
@@ -128,4 +126,8 @@ def download_pdf():
         return jsonify({"error": "Failed to generate PDF"}), 500
 
 if __name__ == "__main__":
-    app.run(debug=True,port=8080,host="0.0.0.0")
+    app.run(
+        debug=os.getenv('DEBUG', 'False').lower() == 'true',
+        port=int(os.getenv('PORT', 8080)),
+        host=os.getenv('HOST', '0.0.0.0')
+    )
