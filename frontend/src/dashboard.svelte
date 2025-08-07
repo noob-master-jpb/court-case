@@ -2,36 +2,57 @@
   import { onMount } from 'svelte';
   
 
-  let caseData = {
-  "case_number": "4352",
-  "case_type": "W.P.(C)",
-  "case_year": "2025",
-  "court_no": "251",
-  "filing_date": "2025/04/02",
-  "last_date": "01/08/2025",
-  "next_date": null,
-  "order_link": "https://delhihighcourt.nic.in/app/case-type-status-details/eyJpdiI6ImM1eklkZUp3UnRKVkxLd3ZlQVFDM2c9PSIsInZhbHVlIjoiNXJ3ZkVHUjRDVUxFU29hR0lDdFcrQT09IiwibWFjIjoiYjdiN2M2NzlmZDc0ZTkxMDA2YWRmZDkwZDllM2U4MDRmN2E5ZTY3MWU1MjI5OTcwMGE1NmJmMWJiOTUyZWJkYiIsInRhZyI6IiJ9/eyJpdiI6InIvcEgwTkVTVDlacWI4TVZQd0QvMmc9PSIsInZhbHVlIjoiK2kyQTgvQlMycWw4cUc0ZGcyNG9WZz09IiwibWFjIjoiNjk3MGNhMTUxYzU5OTc3Nzk5YmY3MDgxYjE5ZGRkYmRkOWZjZjg5M2UxMzQ4MjZjYzJiMGQ2ODE2NTU3YzEzMiIsInRhZyI6IiJ9/eyJpdiI6Imw1TTVOTjBQa2I5SlE0cGNHVXFzMVE9PSIsInZhbHVlIjoiUzgxNFc2d3ZEcUdjc0gvNFdKTGNiZz09IiwibWFjIjoiMzc3ZTU5MDA3ZjFiNzA1ODIzMjI5Yzg2ZmE5Njg5NWRjYTQ2NzkyNjQzZjM1ZDJiZjAxZjQwYzU5MjI5YWVkZCIsInRhZyI6IiJ9",
-  "orders": [
-    {
-      "date": "09/05/2025",
-      "link": "https://delhihighcourt.nic.in/app/showlogo/1747031660_6821966c0c484.pdf/2025"
-    },
-    {
-      "date": "16/04/2025",
-      "link": "https://delhihighcourt.nic.in/app/showlogo/337991751744868386369_54451_43522025.pdf/2025"
-    },
-    {
-      "date": "07/04/2025",
-      "link": "https://delhihighcourt.nic.in/app/showlogo/337991751744172258146_64890_43522025.pdf/2025"
-    }
-  ],
-  "petitioner": "SAURABH PRAKASH",
-  "respondent": "BSES RAJDHANI POWER LTD.",
-  "status": "DISPOSED"
-};
-
-
+    export let case_data = {};
+    export let view_dashboard;
+    export let back;
 let loading = false;
+let pdfLoading = false;
+
+    async function downloadPDF() {
+        pdfLoading = true;
+        try {
+            const response = await fetch('/download_pdf', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: case_data ? JSON.stringify(case_data) : '{}',
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to generate PDF');
+            }
+
+            // Get the filename from the response headers or generate one
+            const contentDisposition = response.headers.get('content-disposition');
+            let filename = 'case_report.pdf';
+            if (contentDisposition) {
+                const filenameMatch = contentDisposition.match(/filename="(.+)"/);
+                if (filenameMatch) {
+                    filename = filenameMatch[1];
+                }
+            }
+
+            // Create blob and download
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+            
+            console.log('PDF downloaded successfully');
+        } catch (error) {
+            console.error('Error downloading PDF:', error);
+            alert('Failed to download PDF. Please try again.');
+        } finally {
+            pdfLoading = false;
+        }
+    }
+
 
 </script>
 
@@ -39,8 +60,10 @@ let loading = false;
     <div class="dashboard-header">
         <h1>Case Dashboard</h1>
         <div class="header-actions">
-            <button class="btn-secondary">← Back to Search</button>
-            <button class="btn-primary">Export PDF</button>
+            <button class="btn-secondary" on:click={back}>← Back to Search</button>
+            <button class="btn-primary" on:click={downloadPDF} disabled={pdfLoading}>
+                {pdfLoading ? 'Generating...' : 'Export PDF'}
+            </button>
         </div>
     </div>
 
@@ -53,19 +76,19 @@ let loading = false;
             <div class="details-grid">
                 <div class="detail-item">
                     <span class="label">Case Number:</span>
-                    <span class="value">{caseData.case_number}</span>
+                    <span class="value">{case_data.case_number}</span>
                 </div>
                 <div class="detail-item">
                     <span class="label">Case Type:</span>
-                    <span class="value">{caseData.case_type}</span>
+                    <span class="value">{case_data.case_type}</span>
                 </div>
                 <div class="detail-item">
                     <span class="label">Year:</span>
-                    <span class="value">{caseData.case_year}</span>
+                    <span class="value">{case_data.case_year}</span>
                 </div>
                 <div class="detail-item">
                     <span class="label">Status:</span>
-                    <span class="value status-text">{caseData.status}</span>
+                    <span class="value status-text">{case_data.status}</span>
                 </div>
             </div>
         </div>
@@ -77,12 +100,12 @@ let loading = false;
             <div class="parties-container">
                 <div class="party">
                     <div class="party-label">Petitioner</div>
-                    <div class="party-name">{caseData.petitioner}</div>
+                    <div class="party-name">{case_data.petitioner}</div>
                 </div>
                 <div class="vs-divider">VS.</div>
                 <div class="party">
                     <div class="party-label">Respondent</div>
-                    <div class="party-name">{caseData.respondent}</div>
+                    <div class="party-name">{case_data.respondent}</div>
                 </div>
             </div>
         </div>
@@ -96,7 +119,7 @@ let loading = false;
                     <div class="date-icon">📅</div>
                     <div class="date-content">
                         <span class="date-label">Filing Date</span>
-                        <span class="date-value">{caseData.filing_date}</span>
+                        <span class="date-value">{case_data.filing_date}</span>
                     </div>
                 </div>
                 <div class="date-item next-hearing">
@@ -104,10 +127,10 @@ let loading = false;
                     <div class="date-content">
                         <span class="date-label">Next Hearing</span>
                         <span class="date-value">
-                            {#if caseData.next_date === null}
+                            {#if case_data.next_date === null}
                                 <span class="date-placeholder">No next hearing scheduled</span>
                             {:else}
-                                {caseData.next_date}
+                                {case_data.next_date}
                             {/if}
                         </span>
                     </div>
@@ -116,7 +139,7 @@ let loading = false;
                     <div class="date-icon">📋</div>
                     <div class="date-content">
                         <span class="date-label">Last Hearing</span>
-                        <span class="date-value">{caseData.last_date}</span>
+                        <span class="date-value">{case_data.last_date}</span>
                     </div>
                 </div>
             </div>
@@ -126,10 +149,9 @@ let loading = false;
     <div id="case_orders" class="info-card orders-section">
         <div class="card-header">
             <h3>Orders & Documents</h3>
-            <div class="orders-count">{caseData.orders.length} items</div>
         </div>
         <div class="orders-container">
-            {#each caseData.orders as order, index}
+            {#each (case_data.orders || []) as order, index}
                 <div class="order-item">
                     <div class="order-number">#{index + 1}</div>
                     <div class="order-info">
@@ -138,7 +160,24 @@ let loading = false;
                         </div>
                     </div>
                     <div class="order-actions">
-                        <button class="download-btn" on:click={() => window.open(order.link, '_blank')}>
+                        <button class="download-btn" on:click={async () => {
+                            try {
+                                const response = await fetch(order.link);
+                                const blob = await response.blob();
+                                const url = window.URL.createObjectURL(blob);
+                                const link = document.createElement('a');
+                                link.href = url;
+                                link.download = `Court_Order_${index + 1}_${order.date}.pdf`;
+                                document.body.appendChild(link);
+                                link.click();
+                                document.body.removeChild(link);
+                                window.URL.revokeObjectURL(url);
+                            } catch (error) {
+                                console.error('Download failed:', error);
+                                // Fallback to opening in new tab
+                                window.open(order.link, '_blank');
+                            }
+                        }}>
                             <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                             </svg>
@@ -444,6 +483,11 @@ let loading = false;
     color: var(--text-primary);
   }
 
+  .date-placeholder {
+    color: var(--text-muted);
+    font-style: italic;
+  }
+
   /* Orders Section */
   .orders-section {
     grid-column: 1 / -1;
@@ -457,6 +501,8 @@ let loading = false;
     font-size: 0.8rem;
     font-weight: 500;
   }
+
+
 
   .orders-container {
     display: flex;
@@ -516,8 +562,18 @@ let loading = false;
     gap: 0.75rem;
   }
 
-
   .download-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    transition: var(--transition);
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
     background: var(--secondary-gradient);
     color: white;
     box-shadow: 0 2px 10px rgba(59, 130, 246, 0.3);
@@ -564,6 +620,11 @@ let loading = false;
 
     .order-actions {
       width: 100%;
+      justify-content: center;
+    }
+
+    .download-btn {
+      flex: 1;
       justify-content: center;
     }
 

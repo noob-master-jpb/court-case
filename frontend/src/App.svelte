@@ -1,14 +1,29 @@
 <script>
-
+    
     import { onMount } from 'svelte';
-    import { contenteditable_truthy_values, each } from 'svelte/internal';
     import Dashboard from "./dashboard.svelte";
+
+
+  let view_dashboard = false;
+  function back() {
+    view_dashboard = !view_dashboard;
+  }
   let ctype = '';
   let clist = [];
+  let isSubmitting = false;
+  let lastSubmitTime = 0;
+  const SUBMIT_DEBOUNCE_TIME = 1000; // 1 second in milliseconds
   let case_data = {
     case_type: '',
     case_number: '',
-    case_year: ''
+    case_year: '',
+    status: '',
+    filing_date: '',
+    next_date: '',
+    last_date: '',
+    petitioner: '',
+    respondent: '',
+    orders: []
   }
 
   async function load_list() {
@@ -22,6 +37,45 @@
 
   async function handleSubmit(event) {
     event.preventDefault();
+    
+    // Check if we're already submitting or if not enough time has passed
+    const currentTime = Date.now();
+    if (isSubmitting || (currentTime - lastSubmitTime < SUBMIT_DEBOUNCE_TIME)) {
+      
+      return;
+    }
+    // Validate case number is numeric
+    if (!/^\d+$/.test(case_data.case_number.trim())) {
+      alert('Case number must contain only numbers.');
+      return;
+    }
+
+    // Validate case year is numeric and not in the future
+    const currentYear = new Date().getFullYear();
+    const caseYear = parseInt(case_data.case_year.trim());
+
+    if (!/^\d+$/.test(case_data.case_year.trim())) {
+      alert('Case year must contain only numbers.');
+      return;
+    }
+
+    if (isNaN(caseYear) || caseYear > currentYear) {
+      alert(`Case year cannot be greater than ${currentYear}.`);
+      return;
+    }
+    if (!case_data.case_type || !case_data.case_number || !case_data.case_year) {
+      alert('Please fill in all required fields.');
+      return;
+    }
+    if (case_data.case_type === '0') {
+      alert('Please select a valid case type.');must
+      return;
+    }
+    
+    // Set submitting state and record timestamp
+    isSubmitting = true;
+    lastSubmitTime = currentTime;
+    
     console.log('Form submitted:', case_data);
     fetch('/data', {
       method: 'POST',
@@ -38,23 +92,28 @@
     })
     .then(data => {
       console.log('Success:', data);
-      // Handle success response here, e.g., show a success message or redirect
+      case_data = { ...case_data, ...data };
+      view_dashboard = true;
     })
     .catch(error => {
       console.error('Error:', error);
-      // Handle error response here, e.g., show an error message
+      alert('An error occurred while submitting the form. Please try again.');
+    })
+    .finally(() => {
+      // Reset submitting state after request completes
+      isSubmitting = false;
     });
   }
+
 
 onMount(() => {
     load_list();
   });
 
-let test = true;
 
 </script>
-{#if test}
-  <Dashboard/>
+{#if view_dashboard}
+  <Dashboard {case_data} {view_dashboard} {back}/>
 {/if}
 <div class="main">
   <div class="top">
@@ -85,7 +144,13 @@ let test = true;
         </div>
       </div>
       <div class=submit>
-        <button type="submit">Submit</button>
+        <button type="submit" disabled={isSubmitting}>
+          {#if isSubmitting}
+            Submitting...
+          {:else}
+            Submit
+          {/if}
+        </button>
       </div>
 
     </form>
@@ -178,35 +243,6 @@ let test = true;
   position: relative;
   z-index: 1;
 }
-
-#form {
-  background: rgba(31, 41, 55, 0.95);
-  border-radius: 32px;
-  padding: 4rem;
-  box-shadow: 
-    0 25px 50px rgba(0, 0, 0, 0.3),
-    0 0 0 1px rgba(75, 85, 99, 0.3);
-  backdrop-filter: blur(20px);
-  border: 1px solid var(--border-light);
-  max-width: 1200px;
-  width: 100%;
-  position: relative;
-  overflow: hidden;
-  animation: slideInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-#form::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: linear-gradient(90deg, #3b82f6 0%, #6366f1 50%, #3b82f6 100%);
-  background-size: 200% 100%;
-  animation: shimmer 3s ease-in-out infinite;
-}
-
 @keyframes slideInUp {
   from {
     opacity: 0;
@@ -356,6 +392,20 @@ let test = true;
   transform: translateY(-2px);
   box-shadow: 
     0 8px 16px rgba(59, 130, 246, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.submit button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  background: #6b7280;
+}
+
+.submit button:disabled:hover {
+  transform: none;
+  box-shadow: 
+    0 12px 24px rgba(102, 126, 234, 0.3),
     inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
