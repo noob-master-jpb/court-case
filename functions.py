@@ -8,19 +8,34 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.options import Options as FirefoxOptions
 from selenium.webdriver.chrome.options import Options as ChromeOptions
 
-def submit_case_search(case_type: str, case_number: str, year: str):
+def get_chrome_driver():
+    """Get Chrome driver optimized for Railway deployment"""
+    chrome_options = ChromeOptions()
+    chrome_options.add_argument("--headless")
+    chrome_options.add_argument("--no-sandbox")
+    chrome_options.add_argument("--disable-dev-shm-usage")
+    chrome_options.add_argument("--disable-gpu")
+    chrome_options.add_argument("--disable-extensions")
+    chrome_options.add_argument("--disable-logging")
+    chrome_options.add_argument("--disable-web-security")
+    chrome_options.add_argument("--allow-running-insecure-content")
+    
+    # For Railway deployment
+    if os.getenv('RAILWAY_ENVIRONMENT'):
+        chrome_options.binary_location = "/nix/store/*/bin/chromium"
+    
     try:
-        _options = FirefoxOptions()
-        _options.add_argument("--headless")
-        driver = webdriver.Firefox(options=_options)
+        driver = webdriver.Chrome(options=chrome_options)
+        return driver
     except Exception as e:
-        try:
-            _options = ChromeOptions()
-            _options.add_argument("--headless")
-            driver = webdriver.Chrome(options=_options)
-        except Exception as e:
-            print(f"Error initializing the browser: {e}")
-            return None    
+        print(f"Chrome driver failed: {e}")
+        return None
+
+def submit_case_search(case_type: str, case_number: str, year: str):
+    driver = get_chrome_driver()
+    if not driver:
+        print("Failed to initialize browser driver")
+        return None
         
     court_url = "https://delhihighcourt.nic.in/app/get-case-type-status"
     driver.get(court_url)
@@ -56,18 +71,11 @@ def submit_case_search(case_type: str, case_number: str, year: str):
         driver.quit()
 
 def submit_order_search(url: str):
-    try:
-        _options = FirefoxOptions()
-        _options.add_argument("--headless")
-        driver = webdriver.Firefox(options=_options)
-    except Exception as e:
-        try:
-            _options = ChromeOptions()
-            _options.add_argument("--headless")
-            driver = webdriver.Chrome(options=_options)
-        except Exception as e:
-            print(f"Error initializing the browser: {e}")
-            return None
+    driver = get_chrome_driver()
+    if not driver:
+        print("Failed to initialize browser driver")
+        return None
+    
     driver.get(url)
     try:
         page_html = driver.page_source
@@ -82,22 +90,11 @@ def submit_order_search(url: str):
     
 
 def get_filing_date(case_type: str, case_number: str, year: str):
-    
+    driver = get_chrome_driver()
+    if not driver:
+        print("Failed to initialize browser driver")
+        return None
 
-    try:
-        _options = FirefoxOptions()
-        _options.add_argument("--headless")
-        driver = webdriver.Firefox(options=_options)
-    except Exception as e:
-        try:
-            _options = ChromeOptions()
-            _options.add_argument("--headless")
-            driver = webdriver.Chrome(options=_options)
-        except Exception as e:
-            print(f"Error initializing the browser: {e}")
-            return None
-
-        
     court_url = "https://dhcmisc.nic.in/pcase/guiCaseWise.php"
     driver.get(court_url)
 

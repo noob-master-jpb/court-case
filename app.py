@@ -7,19 +7,23 @@ from functions import *
 from dotenv import load_dotenv
 import os
 
+# Load environment variables
+load_dotenv()
 
 clist = json.load(open('clist.json', 'r'))['list']
 
 app = Flask(__name__, static_folder='frontend/public', static_url_path='/static')
 
-load_dotenv()
-
 app.secret_key = os.getenv('SECRET_KEY', 'your_secret_key_here')
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'sqlite:///main.db')
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-
-migrate = Migrate(app,db)
+migrate = Migrate(app, db)
 db.init_app(app)
+
+# Create tables in app context
+with app.app_context():
+    db.create_all()
 
     
 @app.route("/")
@@ -126,8 +130,9 @@ def download_pdf():
         return jsonify({"error": "Failed to generate PDF"}), 500
 
 if __name__ == "__main__":
-    app.run(
-        debug=os.getenv('DEBUG', 'False').lower() == 'true',
-        port=int(os.getenv('PORT', 8080)),
-        host=os.getenv('HOST', '0.0.0.0')
-    )
+    port = int(os.getenv('PORT', 8080))
+    debug = os.getenv('DEBUG', 'False').lower() == 'true'
+    host = os.getenv('HOST', '0.0.0.0')
+    
+    print(f"Starting server on {host}:{port} (debug={debug})")
+    app.run(debug=debug, port=port, host=host)
