@@ -1,11 +1,24 @@
 [phases.setup]
-nixPkgs = ["python39", "chromium", "chromedriver"]
+nixPkgs = [
+  "python39",
+  "python39Packages.pip", 
+  "python39Packages.setuptools",
+  "chromium",
+  "chromedriver"
+]
 
-[phases.install]
-cmds = ["pip install -r requirements.txt"]
+[phases.install] 
+cmds = [
+  "python3.9 -m pip install --upgrade pip setuptools wheel",
+  "python3.9 -m pip install -r requirements.txt"
+]
 
 [phases.build]
-cmds = ["echo 'Build phase complete'"]
+cmds = ["echo 'Build completed successfully'"]
 
 [start]
-cmd = "python app.py"
+cmd = "python3.9 app.py"
+
+[variables]
+PYTHONPATH = "/app"
+CHROME_BIN = "/nix/store/*/bin/chromium"

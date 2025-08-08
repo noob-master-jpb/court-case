@@ -9,7 +9,7 @@ from selenium.webdriver.firefox.options import Options as FirefoxOptions
 from selenium.webdriver.chrome.options import Options as ChromeOptions
 
 def get_chrome_driver():
-    """Get Chrome driver optimized for Railway deployment"""
+    """Get Chrome driver optimized for Railway and Docker deployment"""
     chrome_options = ChromeOptions()
     chrome_options.add_argument("--headless")
     chrome_options.add_argument("--no-sandbox")
@@ -19,17 +19,33 @@ def get_chrome_driver():
     chrome_options.add_argument("--disable-logging")
     chrome_options.add_argument("--disable-web-security")
     chrome_options.add_argument("--allow-running-insecure-content")
+    chrome_options.add_argument("--disable-background-timer-throttling")
+    chrome_options.add_argument("--disable-backgrounding-occluded-windows")
+    chrome_options.add_argument("--disable-renderer-backgrounding")
+    chrome_options.add_argument("--disable-features=TranslateUI")
     
-    # For Railway deployment
+    # Set binary location based on environment
     if os.getenv('RAILWAY_ENVIRONMENT'):
+        # Railway with nixpacks
         chrome_options.binary_location = "/nix/store/*/bin/chromium"
+    elif os.getenv('CHROME_BIN'):
+        # Docker environment
+        chrome_options.binary_location = os.getenv('CHROME_BIN')
     
     try:
+        # Try to create the driver
         driver = webdriver.Chrome(options=chrome_options)
         return driver
     except Exception as e:
         print(f"Chrome driver failed: {e}")
-        return None
+        # Fallback: try without binary location
+        chrome_options.binary_location = None
+        try:
+            driver = webdriver.Chrome(options=chrome_options)
+            return driver
+        except Exception as e2:
+            print(f"Chrome driver fallback failed: {e2}")
+            return None
 
 def submit_case_search(case_type: str, case_number: str, year: str):
     driver = get_chrome_driver()
