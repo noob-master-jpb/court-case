@@ -69,6 +69,44 @@ python app.py
 
 Visit `http://localhost:8080` to access the application.
 
+
+
+### Web Scraping
+- Automated form filling with CAPTCHA handling
+- Multi-source data extraction from Delhi High Court websites
+- Robust error handling and retry mechanisms
+- Support for different case types and years
+
+#### CAPTCHA Handling Strategy
+The application employs an intelligent CAPTCHA bypass mechanism for Delhi High Court websites:
+
+**Text-Based CAPTCHA Recognition:**
+- Automatically extracts CAPTCHA text from DOM elements (`captcha-code` and `cap` IDs)
+- Uses Selenium WebDriver to locate and read CAPTCHA values in real-time
+- Supports multiple court portals with different CAPTCHA implementations:
+  - Main court portal: `https://delhihighcourt.nic.in/app/get-case-type-status`
+  - Filing date portal: `https://dhcmisc.nic.in/pcase/guiCaseWise.php`
+
+**Implementation Details:**
+```python
+# Automatic CAPTCHA extraction and input
+captcha_code_element = driver.find_element(By.ID, 'captcha-code')
+captcha_input_element = driver.find_element(By.ID, 'captchaInput')
+captcha_text = captcha_code_element.text
+captcha_input_element.send_keys(captcha_text)
+```
+
+**Reliability Features:**
+- Browser fallback mechanism (Firefox → Chrome)
+- Headless operation for server environments
+- Timeout handling for slow-loading pages
+- Error recovery with graceful degradation
+
+> **Note**: This CAPTCHA strategy works specifically with Delhi High Court's text-based CAPTCHA system where the CAPTCHA value is embedded in the page DOM as plain text.
+
+
+
+
 ## 📁 Project Structure
 
 ```
