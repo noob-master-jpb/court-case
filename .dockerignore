@@ -1,23 +1,23 @@
-**/__pycache__
-**/*.pyc
-**/*.pyo
-**/*.pyd
-**/.Python
-**/env
-**/pip-log.txt
-**/pip-delete-this-directory.txt
-**/.tox
-**/.coverage
-**/.coverage.*
-**/.cache
-**/nosetests.xml
-**/coverage.xml
-**/*.cover
-**/*.log
-**/.git
-**/.mypy_cache
-**/.pytest_cache
-**/.hypothesis
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+pip-log.txt
+pip-delete-this-directory.txt
+.tox/
+.coverage
+.coverage.*
+.cache/
+nosetests.xml
+coverage.xml
+*.cover
+*.log
+.git/
+.mypy_cache/
+.pytest_cache/
+.hypothesis/
 
 # Local environment
 .env
@@ -43,3 +43,8 @@ frontend/public/bundle.css
 *.db
 *.db-journal
 instance/
+
+# Temporary files
+*.tmp
+*.temp
+temp/
