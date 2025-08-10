@@ -30,12 +30,6 @@ with app.app_context():
 def base():
     return render_template('app.html')
 
-@app.route("/<path:path>")
-def spa_routing(path):
-    try:
-        return send_from_directory('frontend/public', path)
-    except:
-        return render_template('index.html') 
 
 @app.get("/type_list")
 def hello():
